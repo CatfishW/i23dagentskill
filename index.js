@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 export class ImageTo3DClient {
-  constructor(baseUrl = process.env.I23D_API_URL || 'http://localhost:23555/I23D') {
+  constructor(baseUrl = process.env.I23D_API_URL || 'https://mc.agaii.org/I23D') {
     this.baseUrl = baseUrl;
     // Strip trailing slash if present
     if (this.baseUrl.endsWith('/')) {
@@ -13,7 +13,7 @@ export class ImageTo3DClient {
 
   async isReady() {
     try {
-      const response = await axios.get(`${this.baseUrl}/health`, { timeout: 2000 });
+      const response = await axios.get(`${this.baseUrl}/api/health`, { timeout: 2000 });
       return response.status === 200;
     } catch (error) {
       return false;
@@ -52,6 +52,7 @@ export class ImageTo3DClient {
       octreeResolution = 256,
       numInferenceSteps = 50,
       guidanceScale = 5.5,
+      filename,
       onProgress
     } = options;
 
@@ -69,11 +70,12 @@ export class ImageTo3DClient {
       octree_resolution: octreeResolution,
       num_inference_steps: numInferenceSteps,
       guidance_scale: guidanceScale,
-      type: 'glb'
+      type: 'glb',
+      ...(filename && { filename })
     };
 
-    // Use /send for async processing
-    const sendResponse = await axios.post(`${this.baseUrl}/send`, payload);
+    // Use /api/send for async processing
+    const sendResponse = await axios.post(`${this.baseUrl}/api/send`, payload);
     const uid = sendResponse.data.uid;
     
     if (onProgress) {
@@ -83,7 +85,7 @@ export class ImageTo3DClient {
     return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
         try {
-          const statusResp = await axios.get(`${this.baseUrl}/status/${uid}`);
+          const statusResp = await axios.get(`${this.baseUrl}/api/status/${uid}`);
           const data = statusResp.data;
           
           if (onProgress && data.status) {
