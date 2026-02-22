@@ -2,11 +2,17 @@
 name: image-to-3d
 description: Converts 2D images into 3D models (.glb/.obj) using Hunyuan3D-2.1. Use this skill when the user explicitly asks to generate or create a 3D asset from a picture.
 ---
+
 # Image to 3D Agent Skill
 
-This skill allows you (the AI agent) to convert 2D images into 3D meshes with PBR textures. It is a wrapper around a state-of-the-art AI model (Hunyuan3D-2.1). 
+Instructions for the agent to follow when this skill is activated to convert 2D images into 3D meshes with PBR textures. It is a wrapper around a state-of-the-art AI model (Hunyuan3D-2.1). 
 
-## How to use this skill
+## When to use
+
+Use this skill when the user explicitly asks to generate, create, or build a 3D asset, model, or mesh from a 2D image or picture.
+
+## Instructions
+
 You have two ways to interact with this skill:
 
 ### Option 1: CLI Wrapper (If running locally via terminal)
