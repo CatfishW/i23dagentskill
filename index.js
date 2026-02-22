@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 export class ImageTo3DClient {
-  constructor(baseUrl = process.env.I23D_API_URL || 'http://localhost:8081') {
+  constructor(baseUrl = process.env.I23D_API_URL || 'https://mc.agaii.org/I23D') {
     this.baseUrl = baseUrl;
     // Strip trailing slash if present
     if (this.baseUrl.endsWith('/')) {
