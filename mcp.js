@@ -17,7 +17,7 @@ const server = new Server(
   }
 );
 
-const I23D_API_URL = process.env.I23D_API_URL || "https://mc.agaii.org/I23D";
+const I23D_API_URL = process.env.I23D_API_URL || "http://localhost:23555/I23D";
 const client = new ImageTo3DClient(I23D_API_URL);
 
 // Expose the generate_3d_model tool to the MCP protocol

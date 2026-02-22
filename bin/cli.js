@@ -14,7 +14,7 @@ program
   .option('-t, --no-texture', 'Do not generate textures')
   .option('-s, --seed <number>', 'Random seed', parseInt)
   .option('-r, --res <number>', 'Octree resolution', parseInt, 256)
-  .option('-u, --api-url <url>', 'Backend API URL (default: https://mc.agaii.org/I23D)')
+  .option('-u, --api-url <url>', 'Backend API URL (default: http://localhost:23555/I23D)')
   .action(async (imagePath, options) => {
     const spinner = ora('Initializing 3D generation...').start();
     
