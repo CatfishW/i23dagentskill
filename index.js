@@ -83,10 +83,15 @@ export class ImageTo3DClient {
     }
 
     return new Promise((resolve, reject) => {
+      let retryCount = 0;
+      const maxRetries = 5;
       const pollInterval = setInterval(async () => {
         try {
-          const statusResp = await axios.get(`${this.baseUrl}/api/status/${uid}`);
+          const statusResp = await axios.get(`${this.baseUrl}/api/status/${uid}`, { timeout: 30000 });
           const data = statusResp.data;
+          
+          // Reset retry count on successful response
+          retryCount = 0;
           
           if (onProgress && data.status) {
             onProgress(data);
@@ -108,8 +113,36 @@ export class ImageTo3DClient {
             reject(new Error(data.message || data.error || 'Unknown generation error'));
           }
         } catch (error) {
+          // Retry on network errors, reject only after max retries
+          const isNetworkError = error.code === 'ECONNRESET' || 
+                                 error.code === 'ETIMEDOUT' || 
+                                 error.code === 'ENOTFOUND' ||
+                                 error.message?.includes('socket hang up') ||
+                                 error.message?.includes('Network Error');
+          
+          if (isNetworkError && retryCount < maxRetries) {
+            retryCount++;
+            if (onProgress) {
+              onProgress({ status: 'retrying', message: `Connection error, retrying (${retryCount}/${maxRetries})...` });
+            }
+            // Continue polling
+            return;
+          }
+          
           clearInterval(pollInterval);
-          reject(new Error(`Polling error: ${error.message}`));
+          
+          // Check if task might have completed despite the error
+          if (error.response && error.response.status === 200) {
+            const data = error.response.data;
+            if (data.status === 'completed' && data.model_base64) {
+              const modelBuffer = Buffer.from(data.model_base64, 'base64');
+              fs.writeFileSync(outputPath, modelBuffer);
+              resolve(outputPath);
+              return;
+            }
+          }
+          
+          reject(new Error(`Polling error after ${retryCount} retries: ${error.message}`));
         }
       }, 5000); // Poll every 5 seconds
     });
